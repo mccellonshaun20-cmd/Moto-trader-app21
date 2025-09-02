@@ -18,5 +18,5 @@ def technical_signal(df: pd.DataFrame):
     sig[bear & ~bull] = -1
     return sig
 
-def combine_signals(tech:int, macro:int, fund:int, w_tech:float, w_macro:float, w_fund:float):
-    return float(w_tech*tech + w_macro*macro + w_fund*fund)
+def combine_signals(tech: int, macro: int, fund: int, w_tech: float, w_macro: float, w_fund: float):
+    return float(w_tech * tech + w_macro * macro + w_fund * fund)
