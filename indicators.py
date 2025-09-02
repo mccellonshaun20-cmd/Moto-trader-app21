@@ -13,14 +13,20 @@ def macd(close: pd.Series, fast=12, slow=26, signal=9):
     return macd_line, signal_line, hist
 
 def rsi(close: pd.Series, length=14):
-    delta = close.diff()
-    up = np.where(delta > 0, delta, 0.0)
-    down = np.where(delta < 0, -delta, 0.0)
-    roll_up = pd.Series(up, index=close.index).rolling(length).mean()
-    roll_down = pd.Series(down, index=close.index).rolling(length).mean()
-    rs = roll_up / (roll_down + 1e-9)
+    # Ensure 1-D series (handles cases where 'Close' came through as a 1-col DataFrame)
+    s = pd.Series(close.squeeze(), index=close.index, dtype="float64")
+
+    delta = s.diff()
+    gain = delta.clip(lower=0)
+    loss = (-delta).clip(lower=0)
+
+    roll_up = gain.rolling(length, min_periods=length).mean()
+    roll_down = loss.rolling(length, min_periods=length).mean()
+
+    # Avoid divide-by-zero
+    rs = roll_up / roll_down.replace(0, np.nan)
     rsi = 100 - (100 / (1 + rs))
-    return rsi
+    return rsi.fillna(method="bfill")
 
 def ichimoku(df: pd.DataFrame, conv=9, base=26, span_b=52):
     high = df['High']; low = df['Low']; close = df['Close']
