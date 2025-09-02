@@ -105,7 +105,10 @@ for t in tickers:
     if df.empty:
         st.warning("No data loaded.")
         continue
-
+if len(df) < 60:
+    st.info("Not enough bars yet for signals on this interval.")
+    continue
+    
     # Compute signals
     tech_sig_series = technical_signal(df)
     tech_sig = int(tech_sig_series.iloc[-1])
